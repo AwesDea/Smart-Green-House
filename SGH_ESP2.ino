@@ -17,8 +17,8 @@
 
 //
 /************ Global State ******************/
-#define VALVE_PIN      0              // Pin connected to the LDR. GPIO 0
-#define SOIL_PIN      15              // Pin connected to the TMP36. GPIO 15
+#define VALVE_PIN      0              // Pin connected to the valve. GPIO 0
+#define SOIL_PIN      15              // Pin connected to the soil. GPIO 15
 
 
 // Create an ESP8266 WiFiClient class to connect to the MQTT server.
@@ -34,7 +34,7 @@ Adafruit_MQTT_Publish pi_soil = Adafruit_MQTT_Publish(&mqtt, MQTT_USERNAME "/pi/
 Adafruit_MQTT_Publish pi_valve = Adafruit_MQTT_Publish(&mqtt, MQTT_USERNAME "/pi/valve");               //give RPi valve notifications
 
 // Setup a feed for subscribing to changes.
-Adafruit_MQTT_Subscribe esp_valve = Adafruit_MQTT_Subscribe(&mqtt, MQTT_USERNAME "/esp/valve");            // get messages for valve
+Adafruit_MQTT_Subscribe esp_valve = Adafruit_MQTT_Subscribe(&mqtt, MQTT_USERNAME "/esp2/valve");            // get messages for valve
 
 /*************************** Sketch Code ************************************/
 
@@ -44,7 +44,27 @@ void MQTT_connect();
 void setup() {
   
   Serial.begin(9600);
+
+  Serial.println(F("SGH-ESP2-MQTT"));
+  // Connect to WiFi access point.
+  Serial.println(); Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(WLAN_SSID);
+  WiFi.begin(WLAN_SSID, WLAN_PASS);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
   
+  Serial.println();
+  Serial.println("WiFi connected");
+  Serial.println("IP address: "); Serial.println(WiFi.localIP());
+  pi_notif.publish("SGH ESP2 WIFI connected.");
+  
+  // Setup MQTT subscription for feeds.
+  mqtt.subscribe(&esp_valve);
+
+  // Setup pins    
   pinMode(VALVE_PIN,OUTPUT);
   digitalWrite(VALVE_PIN, LOW);
 }

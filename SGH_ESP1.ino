@@ -3,7 +3,6 @@
 #include <ESP8266WiFi.h>
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
-#include "DHT.h"
 
 /************************* WiFi Access Point *********************************/
 #define WLAN_SSID       ""
@@ -43,6 +42,22 @@ String ldr_value = "0";     // result of reading the analog pin
 void setup() {
   Serial.begin(9600);
 
+    Serial.println(F("SGH-ESP1-MQTT"));
+  // Connect to WiFi access point.
+  Serial.println(); Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(WLAN_SSID);
+  WiFi.begin(WLAN_SSID, WLAN_PASS);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  
+  Serial.println();
+  Serial.println("WiFi connected");
+  Serial.println("IP address: "); Serial.println(WiFi.localIP());
+  pi_notif.publish("SGH ESP1 WIFI connected.");
+  
 }
 
 void loop() {
